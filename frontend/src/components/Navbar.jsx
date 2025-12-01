@@ -29,7 +29,7 @@ const Navbar = () => {
           onClick={() => {
             openSignIn();
           }}
-          className="bg-primary text-white text-sm flex  items-center rounded-full px-10 py-2.5 cursor-pointer transition hover:scale-102 active:scale-95"
+          className="bg-primary text-white text-sm flex gap-1  items-center rounded-full px-10 py-2.5 cursor-pointer transition hover:scale-102 active:scale-95"
         >
           Get Started <ArrowRight className="h-4 w-4" />
         </button>
