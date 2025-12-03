@@ -10,3 +10,14 @@
 @theme {
   --color-primary: #5044e5;
 }
+
+/* To reset the tailwind styling in markdown files*/
+.reset-tw,
+.reset-tw * {
+  all: revert !important;
+}
+
+/* The payment checkout popup on homepage */
+.cl-drawerRoot {
+  z-index: 10;
+}
