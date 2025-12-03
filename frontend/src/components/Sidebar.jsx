@@ -32,17 +32,18 @@ const Sidebar = ({ sidebar, setSidebar }) => {
     { to: '/ai/community', label: 'Community', Icon: Users },
   ];
 
+  
   return (
     <div
       className={`w-60 bg-white border-r border-gray-200 flex flex-col justify-between items-center max-sm:absolute top-14 bottom-0 ${
         sidebar ? 'translate-x-0' : 'max-sm:-translate-x-full'
-      } transition-all duration-300 ease-in-out`}
+      } transition-all duration-300 ease-in-out z-10`}
     >
       <div className="my-7 w-full">
         <img
           src={user?.imageUrl}
           alt="Avatar"
-          className="w-24 rounded-full mx-auto"
+          className="w-13 rounded-full mx-auto"
         />
         <h1 className="mt-1 text-center">{user?.fullName}</h1>
 
@@ -80,7 +81,7 @@ const Sidebar = ({ sidebar, setSidebar }) => {
           <img
             src={user?.imageUrl}
             alt="Avatar"
-            className="w-12 rounded-full"
+            className="w-8 rounded-full"
           />
           <div>
             <h1 className="text-sm font-medium">{user?.fullName}</h1>

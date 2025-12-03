@@ -21,3 +21,13 @@
 .cl-drawerRoot {
   z-index: 10;
 }
+
+/* Scrollbar hide */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+}
