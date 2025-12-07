@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import { connectCloudinary } from './configs/cloudinary.js';
 import AIRoutes from './routes/ai.routes.js';
+import UserRoutes from './routes/user.routes.js';
 dotenv.config({});
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(requireAuth());
 
 // Routes
 app.use('/api/ai', AIRoutes);
+app.use('/api/user', UserRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
