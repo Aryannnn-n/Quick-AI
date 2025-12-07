@@ -8,7 +8,10 @@ dotenv.config({});
 
 import axios from 'axios';
 import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs';
+import pdf from 'pdf-parse/lib/pdf-parse.js';
 
+import { clerkClient } from '@clerk/express';
 import OpenAI from 'openai';
 import { sql } from '../configs/dbConfig.js';
 const openai = new OpenAI({
@@ -27,7 +30,7 @@ const generateArticle = async (req, res) => {
     // Enforce free-tier usage limit
     if (plan !== 'premium' && free_usage >= 10) {
       return res.json({
-        sucess: false,
+        success: false,
         message: 'Limit reached. Upgrade to continue.',
       });
     }
@@ -68,7 +71,7 @@ const generateArticle = async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.json({
-      sucess: false,
+      success: false,
       message: error.message,
     });
   }
@@ -85,12 +88,12 @@ const generateBlogTitles = async (req, res) => {
     // Enforce free-tier usage limit
     if (plan !== 'premium' && free_usage >= 10) {
       return res.json({
-        sucess: false,
+        success: false,
         message: 'Limit reached. Upgrade to continue.',
       });
     }
 
-    // Generate article using Gemini
+    // Generate title using Gemini
     const response = await openai.chat.completions.create({
       model: 'gemini-2.0-flash',
       messages: [{ role: 'user', content: prompt }],
@@ -109,7 +112,7 @@ const generateBlogTitles = async (req, res) => {
       });
     }
 
-    // Save generated article
+    // Save generated title
     await sql`
       INSERT INTO creations (user_id, prompt, content, type)
       VALUES (${userId}, ${prompt}, ${content}, 'blog-title')
@@ -126,7 +129,7 @@ const generateBlogTitles = async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.json({
-      sucess: false,
+      success: false,
       message: error.message,
     });
   }
@@ -142,7 +145,7 @@ const generateImage = async (req, res) => {
     // Enforce premium only -> Only premium members can genearate images
     if (plan !== 'premium') {
       return res.json({
-        sucess: false,
+        success: false,
         message: 'This feature is only available for premium subscriptions.',
       });
     }
@@ -179,7 +182,7 @@ const generateImage = async (req, res) => {
       });
     }
 
-    // Save generated article
+    // Save generated image
     await sql`
       INSERT INTO creations (user_id, prompt, content, type , publish)
       VALUES (${userId}, ${prompt}, ${secure_url}, 'image' , ${
@@ -191,10 +194,184 @@ const generateImage = async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.json({
-      sucess: false,
+      success: false,
       message: error.message,
     });
   }
 };
 
-export { generateArticle, generateBlogTitles, generateImage };
+// Remove Image Background
+const removeImageBackground = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const { image } = req.file;
+    const plan = req.plan;
+
+    // Enforce premium only -> Only premium members can genearate images
+    if (plan !== 'premium') {
+      return res.json({
+        success: false,
+        message: 'This feature is only available for premium subscriptions.',
+      });
+    }
+
+    // Removing bg using cloudinary -> Return url
+    const { secure_url } = await cloudinary.uploader.upload(image.path, {
+      transformation: [
+        {
+          effect: 'background_removal',
+          background_removal: 'remove_the_background',
+        },
+      ],
+    });
+
+    // Handle missing Cloudinary output
+    if (!secure_url) {
+      return res.json({
+        success: false,
+        message:
+          'The generative AI server is not working properly , kindly try again later !',
+      });
+    }
+
+    // Save generated image
+    await sql`
+      INSERT INTO creations (user_id, prompt, content, type )
+      VALUES (${userId}, 'Remove background from the image', ${secure_url}, 'image')
+    `;
+
+    res.json({ success: true, content: secure_url });
+  } catch (error) {
+    console.log(error.message);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Remove Object
+const removeImageObject = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const { object } = req.body;
+    const { image } = req.file;
+    const plan = req.plan;
+
+    // Enforce premium only -> Only premium members can genearate images
+    if (plan !== 'premium') {
+      return res.json({
+        success: false,
+        message: 'This feature is only available for premium subscriptions.',
+      });
+    }
+
+    // Removing bg using cloudinary -> Return url
+    const { public_id } = await cloudinary.uploader.upload(image.path);
+
+    // Get the image and remove object on the basis of i/p
+    const imageUrl = cloudinary.url(public_id, {
+      transformation: [{ effect: `gen_remove:${object}` }],
+      resource_type: 'image',
+    });
+
+    // Handle missing Cloudinary output
+    if (!imageUrl) {
+      return res.json({
+        success: false,
+        message:
+          'The generative AI server is not working properly , kindly try again later !',
+      });
+    }
+
+    // Save generated image
+    await sql`
+      INSERT INTO creations (user_id, prompt, content, type )
+      VALUES (${userId}, ${`Remove ${object} from the image`}, ${imageUrl}, 'image')
+    `;
+
+    res.json({ success: true, content: imageUrl });
+  } catch (error) {
+    console.log(error.message);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Resume Review
+const resumeReview = async (req, res) => {
+  try {
+    const { userId } = req.auth();
+    const resume = req.file;
+    const plan = req.plan;
+
+    // Enforce premium only -> Only premium members can genearate images
+    if (plan !== 'premium') {
+      return res.json({
+        success: false,
+        message: 'This feature is only available for premium subscriptions.',
+      });
+    }
+
+    // Check the resume file size
+    if (resume.size > 5 * 1024 * 1024) {
+      return res.json({
+        success: false,
+        message: 'Resume file size exceeds allowed file size (5MB).',
+      });
+    }
+
+    // Load uploaded PDF into a buffer
+    const dataBuffer = fs.readFileSync(resume.path);
+
+    // Extract text from PDF
+    const pdfData = await pdf(dataBuffer);
+
+    // Build AI prompt with extracted resume text
+    const prompt = `Review the following resume and provide constructive feedback on its strengths weaknesses, and areas for improvement. Resume Content:\n\n ${pdfData.text}`;
+
+    // Generate resume review using Gemini
+    const response = await openai.chat.completions.create({
+      model: 'gemini-2.0-flash',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+      max_tokens: 1000,
+    });
+
+    const content = response?.choices?.[0]?.message?.content;
+
+    // Handle missing AI output
+    if (!content) {
+      return res.json({
+        success: false,
+        message:
+          'The generative AI server is not working properly , kindly try again later !',
+      });
+    }
+
+    // Save generated review
+    await sql`
+      INSERT INTO creations (user_id, prompt, content, type )
+      VALUES (${userId}, 'Review the uploaded resume', ${content}, 'resume-review')
+    `;
+
+    res.json({ success: true, content: content });
+  } catch (error) {
+    console.log(error.message);
+    res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export {
+  generateArticle,
+  generateBlogTitles,
+  generateImage,
+  removeImageBackground,
+  removeImageObject,
+  resumeReview,
+};
