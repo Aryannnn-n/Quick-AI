@@ -1,12 +1,44 @@
+import { useAuth } from '@clerk/clerk-react';
+import axios from 'axios';
 import { FileText, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import Markdown from 'react-markdown';
 
 const ReviewResume = () => {
   const [input, setInput] = useState('');
 
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState('');
+
+  const { getToken } = useAuth(); // To get token func
+
   // Form handler
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append('resume', input);
+
+      const { data } = await axios.post('/api/ai/resume-review', formData, {
+        headers: {
+          Authorization: `Bearer ${await getToken()}`,
+        },
+      });
+
+      // Check data
+      if (data.success) {
+        setContent(data.content);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+    setLoading(false); // Close loading
   };
 
   return (
@@ -37,7 +69,11 @@ const ReviewResume = () => {
         </p>
 
         <button className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#00DA83] to-[#009BB3] text-white px-4 py-2 text-sm rounded-lg cursor-pointer">
-          <FileText className="w-5" />
+          {loading ? (
+            <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span>
+          ) : (
+            <FileText className="w-5" />
+          )}
           Review Resume
         </button>
       </form>
@@ -48,12 +84,21 @@ const ReviewResume = () => {
           <FileText className="w-5 h-5 text-[#00DA83]" />
           <h2 className="text-xl font-semibold">Analysis Result</h2>
         </div>
-        <div className="flex flex-1 justify-center items-center">
-          <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
-            <FileText className="w-9 h-9" />
-            <p>Upload your resume and click "Review Resume" to get started</p>
+
+        {!content ? (
+          <div className="flex flex-1 justify-center items-center">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+              <FileText className="w-9 h-9" />
+              <p>Upload your resume and click "Review Resume" to get started</p>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="mt-3 h-full overflow-y-scroll text-sm text-slate-600">
+            <div className="reset-tw">
+              <Markdown>{content}</Markdown>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

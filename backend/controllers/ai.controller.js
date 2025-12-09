@@ -10,10 +10,7 @@ import axios from 'axios';
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 
-// No Default Export For pdf-parse
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const pdf = require('pdf-parse');
+import { PDFParse } from 'pdf-parse';
 
 import { clerkClient } from '@clerk/express';
 import OpenAI from 'openai';
@@ -208,7 +205,7 @@ const generateImage = async (req, res) => {
 const removeImageBackground = async (req, res) => {
   try {
     const { userId } = req.auth();
-    const { image } = req.file;
+    const image = req.file;
     const plan = req.plan;
 
     // Enforce premium only -> Only premium members can genearate images
@@ -259,7 +256,7 @@ const removeImageObject = async (req, res) => {
   try {
     const { userId } = req.auth();
     const { object } = req.body;
-    const { image } = req.file;
+    const image = req.file;
     const plan = req.plan;
 
     // Enforce premium only -> Only premium members can genearate images
@@ -275,7 +272,7 @@ const removeImageObject = async (req, res) => {
 
     // Get the image and remove object on the basis of i/p
     const imageUrl = cloudinary.url(public_id, {
-      transformation: [{ effect: `gen_remove:${object}` }],
+      transformation: [{ effect: `gen_remove:prompt_${object}` }],
       resource_type: 'image',
     });
 
@@ -327,14 +324,18 @@ const resumeReview = async (req, res) => {
       });
     }
 
-    // Load uploaded PDF into a buffer
-    const dataBuffer = fs.readFileSync(resume.path);
+    // Load uploaded PDF into a buffer (non-blocking)
+    const dataBuffer = await fs.promises.readFile(resume.path);
+
+    // Create a parser instance with the Buffer
+    const parser = new PDFParse({ data: dataBuffer });
 
     // Extract text from PDF
-    const pdfData = await pdf(dataBuffer);
+    const pdfResult = await parser.getText(); // or getRaw() if you want v1-style output
+    await parser.destroy(); // recommended to free resources
 
     // Build AI prompt with extracted resume text
-    const prompt = `Review the following resume and provide constructive feedback on its strengths weaknesses, and areas for improvement. Resume Content:\n\n ${pdfData.text}`;
+    const prompt = `Review the following resume and provide constructive feedback on its strengths, weaknesses, and areas for improvement. Resume Content:\n\n ${pdfResult.text}`;
 
     // Generate resume review using Gemini
     const response = await openai.chat.completions.create({

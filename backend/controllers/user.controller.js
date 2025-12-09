@@ -70,7 +70,7 @@ const toggleLikeCreation = async (req, res) => {
     }
 
     // Format for postgres array -> Postgres expects {} like structure
-    const formattedArray = `{${updatedLikes.json(',')}}`;
+    const formattedArray = `{${updatedLikes.join(',')}}`;
 
     // Update likes -> :: for typecasting
     await sql`UPDATE creations SET likes = ${formattedArray}::text[] WHERE id = ${id}`;
