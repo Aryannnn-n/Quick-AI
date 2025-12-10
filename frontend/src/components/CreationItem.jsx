@@ -25,11 +25,11 @@ const CreationItem = ({ item }) => {
       {expanded && (
         <div>
           {item.type === 'image' ? (
-            <div>
+            <div className="flex justify-center items-center">
               <img
                 src={item.content}
                 alt="image"
-                className="mt-3 w-full max-w-md"
+                className="mt-3 w-full max-w-md rounded"
               />
             </div>
           ) : (

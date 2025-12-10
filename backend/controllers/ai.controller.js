@@ -15,6 +15,7 @@ import { PDFParse } from 'pdf-parse';
 import { clerkClient } from '@clerk/express';
 import OpenAI from 'openai';
 import { sql } from '../configs/dbConfig.js';
+
 const openai = new OpenAI({
   apiKey: process.env.GEMINI_API_KEY,
   baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
@@ -25,6 +26,7 @@ const generateArticle = async (req, res) => {
   try {
     const { userId } = req.auth();
     const { prompt, length } = req.body;
+
     const plan = req.plan;
     const free_usage = req.free_usage;
 
@@ -36,12 +38,22 @@ const generateArticle = async (req, res) => {
       });
     }
 
-    // Generate article using Gemini
+    // Generate article using Gemini -> To generate same amount of words we need more tokens
+    let maxTokens = length <= 800 ? 1024 : length <= 1200 ? 1536 : 2048;
+
+    const finalPrompt = `
+      ${prompt}.
+
+      It should be around ${length} words.
+      Do not explain how to write the article.
+      Just write the full article with headings and paragraphs.
+    `;
+
     const response = await openai.chat.completions.create({
-      model: 'gemini-2.0-flash',
-      messages: [{ role: 'user', content: prompt }],
+      model: 'gemini-2.5-flash',
+      messages: [{ role: 'user', content: finalPrompt.trim() }],
       temperature: 0.7,
-      max_tokens: length,
+      max_tokens: maxTokens,
     });
 
     const content = response?.choices?.[0]?.message?.content;
@@ -71,6 +83,16 @@ const generateArticle = async (req, res) => {
     res.json({ success: true, content });
   } catch (error) {
     console.log(error.message);
+
+    // Handle rate limit / Quota / API migration errors
+    if (error.status === 429 || error.code === 429) {
+      return res.status(503).json({
+        success: false,
+        message:
+          'AI generation is temporarily unavailable as we are migrating our services to a new AI provider. Please try again after some time.',
+      });
+    }
+
     res.json({
       success: false,
       message: error.message,
@@ -96,7 +118,7 @@ const generateBlogTitles = async (req, res) => {
 
     // Generate title using Gemini
     const response = await openai.chat.completions.create({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
       max_tokens: 100, // Only title so less tokens
@@ -129,6 +151,16 @@ const generateBlogTitles = async (req, res) => {
     res.json({ success: true, content });
   } catch (error) {
     console.log(error.message);
+
+    // Handle rate limit / Quota / API migration errors
+    if (error.status === 429 || error.code === 429) {
+      return res.status(503).json({
+        success: false,
+        message:
+          'AI generation is temporarily unavailable as we are migrating our services to a new AI provider. Please try again after some time.',
+      });
+    }
+
     res.json({
       success: false,
       message: error.message,
@@ -331,7 +363,7 @@ const resumeReview = async (req, res) => {
     const parser = new PDFParse({ data: dataBuffer });
 
     // Extract text from PDF
-    const pdfResult = await parser.getText(); // or getRaw() if you want v1-style output
+    const pdfResult = await parser.getText();
     await parser.destroy(); // recommended to free resources
 
     // Build AI prompt with extracted resume text
@@ -339,7 +371,7 @@ const resumeReview = async (req, res) => {
 
     // Generate resume review using Gemini
     const response = await openai.chat.completions.create({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
       max_tokens: 1000,
@@ -365,6 +397,16 @@ const resumeReview = async (req, res) => {
     res.json({ success: true, content: content });
   } catch (error) {
     console.log(error.message);
+
+    // Handle rate limit / Quota / API migration errors
+    if (error.status === 429 || error.code === 429) {
+      return res.status(503).json({
+        success: false,
+        message:
+          'Resume review system is temporarily unavailable as we are migrating our services to a new AI provider. Please try again after some time.',
+      });
+    }
+
     res.json({
       success: false,
       message: error.message,
