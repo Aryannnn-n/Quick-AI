@@ -56,7 +56,21 @@ const generateArticle = async (req, res) => {
       max_tokens: maxTokens,
     });
 
-    const content = response?.choices?.[0]?.message?.content;
+    // Handling incomplete response
+    const rawContent = response?.choices?.[0]?.message?.content;
+
+    function trimToLastFullStop(text) {
+      if (!text) return text; // handle undefined/null safely
+
+      const lastPeriodIndex = text.lastIndexOf('.');
+      if (lastPeriodIndex === -1) {
+        return text; // no full stop found
+      }
+
+      return text.substring(0, lastPeriodIndex + 1).trim();
+    }
+
+    const content = trimToLastFullStop(rawContent);
 
     // Handle missing AI output
     if (!content) {
@@ -121,7 +135,7 @@ const generateBlogTitles = async (req, res) => {
       model: 'gemini-2.5-flash',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
-      max_tokens: 100, // Only title so less tokens
+      // max_tokens: 100, // Only title so less tokens
     });
 
     const content = response?.choices?.[0]?.message?.content;
@@ -374,7 +388,6 @@ const resumeReview = async (req, res) => {
       model: 'gemini-2.5-flash',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
-      max_tokens: 1000,
     });
 
     const content = response?.choices?.[0]?.message?.content;
