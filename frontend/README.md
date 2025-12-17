@@ -1,16 +1,260 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+# ⚡ Quick AI — Frontend Service
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This repository contains the **frontend application** for an AI-powered content creation platform. It provides a modern, responsive UI for generating **articles, blog titles, AI images, background/object removal, resume review**, and browsing a **community feed**, powered by a secure backend.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Features
 
-## Expanding the ESLint configuration
+* 🔐 **Authentication with Clerk**
+* ✍️ AI Article Generator
+* 🏷 AI Blog Title Generator
+* 🖼 AI Image Generator (Premium)
+* 🎭 Image Background Removal
+* ✂ Object Removal from Images
+* 📄 Resume Review (PDF)
+* ❤️ Like & Explore Community Creations
+* 📊 User Dashboard with usage & plan info
+* 🎨 Modern UI with Tailwind CSS
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🛠 Tech Stack
+
+* **React 19**
+* **Vite**
+* **React Router DOM**
+* **Tailwind CSS**
+* **Clerk Authentication**
+* **Axios**
+* **Lucide Icons**
+* **React Hot Toast**
+* **React Markdown**
+
+---
+
+## 📁 Project Structure
+
+```
+frontend/
+│
+├── src/
+│   ├── assets/
+│   ├── components/
+│   │   ├── Navbar.jsx
+│   │   ├── Sidebar.jsx
+│   │   ├── CreationItem.jsx
+│   │   └── ...
+│   │
+│   ├── pages/
+│   │   ├── Home.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── WriteArticle.jsx
+│   │   ├── BlogTitles.jsx
+│   │   ├── GenerateImages.jsx
+│   │   ├── RemoveBackground.jsx
+│   │   ├── RemoveObject.jsx
+│   │   ├── ReviewResume.jsx
+│   │   └── Community.jsx
+│   │
+│   ├── App.jsx
+│   └── main.jsx
+│
+├── .env.example
+├── package.json
+└── README.md
+```
+
+---
+
+## 🔐 Environment Variables
+
+Create a `.env` file in the root of `frontend/`:
+
+```env
+VITE_CLERK_PUBLISHABLE_KEY=
+VITE_BASE_URL=
+```
+
+* `VITE_BASE_URL` → Backend base URL
+  Example:
+
+  ```
+  http://localhost:3000
+  ```
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1️⃣ Install dependencies
+
+```bash
+npm install
+```
+
+### 2️⃣ Start development server
+
+```bash
+npm run dev
+```
+
+Frontend will run at:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🔁 Routing Overview
+
+```txt
+/                     → Landing Page
+/ai                   → Protected Layout
+/ai                   → Dashboard
+/ai/write-article     → Article Generator
+/ai/blog-titles       → Blog Title Generator
+/ai/generate-images   → Image Generator
+/ai/remove-background → Background Removal
+/ai/remove-object     → Object Removal
+/ai/review-resume     → Resume Review
+/ai/community         → Public Creations
+```
+
+All `/ai/*` routes are **protected** and require authentication.
+
+---
+
+## 🔐 Authentication Flow (Clerk)
+
+* Uses **Clerk React SDK**
+* Login / Signup handled via `<SignIn />`
+* JWT token retrieved using `getToken()`
+* Token passed in API calls:
+
+```js
+Authorization: `Bearer ${await getToken()}`
+```
+
+* `Protect` component used for **plan-based UI rendering**
+
+---
+
+## 🌐 API Integration
+
+Axios is used for all backend communication.
+
+### Base URL Setup
+
+```js
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+```
+
+### Example API Call
+
+```js
+await axios.post(
+  '/api/ai/generate-article',
+  { prompt, length },
+  {
+    headers: {
+      Authorization: `Bearer ${await getToken()}`
+    }
+  }
+);
+```
+
+---
+
+## 🧠 Key Pages & Logic
+
+### 🧾 Dashboard
+
+* Shows total creations
+* Displays current plan (Free / Premium)
+* Lists recent generated content
+
+---
+
+### ✍️ Article Generator
+
+* Select article length
+* Markdown-rendered output
+* Free & premium usage handling
+
+---
+
+### 🏷 Blog Title Generator
+
+* Category-based title generation
+* Markdown rendering for results
+
+---
+
+### 🖼 Image Generator (Premium)
+
+* Style-based image generation
+* Option to publish image publicly
+* Displays generated Cloudinary image
+
+---
+
+### 🎭 Background & Object Removal
+
+* Uses file upload (multipart/form-data)
+* Real-time image preview
+* Premium-only features
+
+---
+
+### 📄 Resume Review
+
+* PDF upload
+* AI-based analysis
+* Markdown-rendered feedback
+
+---
+
+### 🌍 Community Page
+
+* Displays published creations
+* Like / unlike images
+* Real-time likes count
+
+---
+
+## 🎨 UI & Styling
+
+* Built with **Tailwind CSS**
+* Fully responsive
+* Clean component-based layout
+* Icons via **Lucide React**
+
+---
+
+## 🚨 Error Handling
+
+* API errors handled with `react-hot-toast`
+* Graceful loading states
+* Backend messages shown directly to users
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!  
+Feel free to open an issue or submit a pull request to help improve **Quick AI**.
+
+
+---
+
+## 🙌 Acknowledgements
+
+Built with ❤️ using modern frontend technologies and AI-powered services.
+
+---
+
+### ⚡ Quick AI — Build smarter content, faster.
