@@ -45,8 +45,8 @@ export const Dashboard = () => {
       <div className="h-full overflow-y-scroll p-6">
         <div className="flex justify-start gap-4 flex-wrap">
           {/* Total creations card */}
-          <div className="flex justify-between items-center w-72 p-4 px-6 bg-white rounded-xl border border-gray-200">
-            <div className="text-slate-600">
+          <div className="flex justify-between items-center w-72 p-4 px-6 bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-gray-800">
+            <div className="text-slate-600 dark:text-gray-300">
               <p className="text-sm">Total Creations</p>
               <h2 className="text-xl font-semibold">{creations.length}</h2>
             </div>
@@ -56,8 +56,8 @@ export const Dashboard = () => {
           </div>
 
           {/* Plan Card */}
-          <div className="flex justify-between items-center w-72 p-4 px-6 bg-white rounded-xl border border-gray-200">
-            <div className="text-slate-600">
+          <div className="flex justify-between items-center w-72 p-4 px-6 bg-white dark:bg-[#111111] rounded-xl border border-gray-200 dark:border-gray-800">
+            <div className="text-slate-600 dark:text-gray-300">
               <p className="text-sm">Plan</p>
               <h2 className="text-xl font-semibold">
                 <Protect plan="premium" fallback="Free">
@@ -78,7 +78,7 @@ export const Dashboard = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            <p className="mt-6 mb-4">Recent Creations</p>
+            <p className="mt-6 mb-4 text-gray-900 dark:text-white">Recent Creations</p>
             {creations.map((item) => (
               <CreationItem key={item.id} item={item} />
             ))}

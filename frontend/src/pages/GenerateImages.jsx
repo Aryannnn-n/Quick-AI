@@ -53,18 +53,18 @@ const GenerateImages = () => {
     setLoading(false); // Close loading
   };
   return (
-    <div className="h-full overflow-y-scroll p-6 flex items-start gap-4 text-slate-700">
+    <div className="h-full overflow-y-scroll p-6 flex items-start gap-4 text-slate-700 dark:text-gray-300">
       {/* Left col */}
       <form
         onSubmit={onSubmitHandler}
-        className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200"
+        className="w-full max-w-lg p-4 bg-white dark:bg-[#111111] rounded-lg border border-gray-200 dark:border-gray-800"
       >
         <div className="flex items-center gap-3">
           <Sparkles className="w-6 text-[#00AD25]" />
-          <h1 className="text-xl font-semibold">AI Image Generator</h1>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">AI Image Generator</h1>
         </div>
 
-        <p className="mt-6 text-sm font-medium">Describe Your Image</p>
+        <p className="mt-6 text-sm font-medium text-gray-900 dark:text-white">Describe Your Image</p>
         <textarea
           required
           rows={4}
@@ -73,10 +73,10 @@ const GenerateImages = () => {
             setInput(e.target.value);
           }}
           placeholder="Describe what you want in image ..."
-          className="w-full px-3 p-2 mt-2 outline-none text-sm rounded-md border border-gray-300"
+          className="w-full px-3 p-2 mt-2 outline-none text-sm rounded-md border border-gray-300 dark:border-gray-700 dark:bg-[#0a0a0a] dark:text-white"
         />
 
-        <p className="mt-4 text-sm font-medium">Styles</p>
+        <p className="mt-4 text-sm font-medium text-gray-900 dark:text-white">Styles</p>
         <div className="mt-3 flex gap-3 flex-wrap sm:max-w-9/10">
           {imageStyles.map((item) => (
             <span
@@ -85,8 +85,8 @@ const GenerateImages = () => {
               className={`text-xs px-4 py-1 border rounded-full cursor-pointer
                 ${
                   selectedStyle === item
-                    ? `bg-green-50 text-green-700`
-                    : `text-gray-500 border-gray-300`
+                    ? `bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-300 dark:border-green-700`
+                    : `text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-700`
                 }
                 `}
             >
@@ -104,11 +104,11 @@ const GenerateImages = () => {
               className="sr-only peer"
             />
 
-            <div className="w-9 h-5 bg-slate-300 rounded-full peer-checked:bg-green-500 transition"></div>
+            <div className="w-9 h-5 bg-slate-300 dark:bg-gray-700 rounded-full peer-checked:bg-green-500 transition"></div>
 
             <span className="absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition peer-checked:translate-x-4"></span>
           </label>
-          <p className="text-sm">Make This Image Public</p>
+          <p className="text-sm text-gray-900 dark:text-white">Make This Image Public</p>
         </div>
 
         <br />
@@ -126,15 +126,15 @@ const GenerateImages = () => {
       </form>
 
       {/* Right col */}
-      <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96">
+      <div className="w-full max-w-lg p-4 bg-white dark:bg-[#111111] rounded-lg flex flex-col border border-gray-200 dark:border-gray-800 min-h-96">
         <div className="flex items-center gap-3">
           <Image className="w-5 h-5 text-[#00AD25]" />
-          <h2 className="text-xl font-semibold">Generated Image</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Generated Image</h2>
         </div>
 
         {!content ? (
           <div className="flex flex-1 justify-center items-center">
-            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400 dark:text-gray-500">
               <Image className="w-9 h-9" />
               <p>Enter a topic and click "Generate Image" to get started</p>
             </div>

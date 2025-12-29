@@ -63,8 +63,8 @@ export const Community = () => {
   return !loading ? (
     <>
       <div className="flex h-full flex-1 flex-col gap-4 p-6">
-        <h1 className="text-lg text-gray-700 font-semibold">Creations</h1>
-        <div className="bg-white h-full w-full rounded-xl overflow-y-auto no-scrollbar">
+        <h1 className="text-lg text-gray-700 dark:text-white font-semibold">Creations</h1>
+        <div className="bg-white dark:bg-[#111111] h-full w-full rounded-xl overflow-y-auto no-scrollbar border border-gray-200 dark:border-gray-800">
           {creations.map((creation, idx) => (
             <div
               key={idx}

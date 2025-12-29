@@ -61,18 +61,18 @@ const BlogTitles = () => {
   };
 
   return (
-    <div className="h-full overflow-y-scroll p-6 flex items-start gap-4 text-slate-700">
+    <div className="h-full overflow-y-scroll p-6 flex items-start gap-4 text-slate-700 dark:text-gray-300">
       {/* Left col */}
       <form
         onSubmit={onSubmitHandler}
-        className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200"
+        className="w-full max-w-lg p-4 bg-white dark:bg-[#111111] rounded-lg border border-gray-200 dark:border-gray-800"
       >
         <div className="flex items-center gap-3">
           <Sparkles className="w-6 text-[#8E37Eb]" />
-          <h1 className="text-xl font-semibold">AI Title Generator</h1>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">AI Title Generator</h1>
         </div>
 
-        <p className="mt-6 text-sm font-medium">Keyword</p>
+        <p className="mt-6 text-sm font-medium text-gray-900 dark:text-white">Keyword</p>
         <input
           required
           type="text"
@@ -81,10 +81,10 @@ const BlogTitles = () => {
             setInput(e.target.value);
           }}
           placeholder="The future of artificial intelligence is ..."
-          className="w-full px-3 p-2 mt-2 outline-none text-sm rounded-md border border-gray-300"
+          className="w-full px-3 p-2 mt-2 outline-none text-sm rounded-md border border-gray-300 dark:border-gray-700 dark:bg-[#0a0a0a] dark:text-white"
         />
 
-        <p className="mt-4 text-sm font-medium">Category</p>
+        <p className="mt-4 text-sm font-medium text-gray-900 dark:text-white">Category</p>
         <div className="mt-3 flex gap-3 flex-wrap sm:max-w-9/10">
           {blogCategories.map((item) => (
             <span
@@ -93,8 +93,8 @@ const BlogTitles = () => {
               className={`text-xs px-4 py-1 border rounded-full cursor-pointer
                 ${
                   selectedBlogCategory === item
-                    ? `bg-purple-50 text-purple-700`
-                    : `text-gray-500 border-gray-300`
+                    ? `bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border-purple-300 dark:border-purple-700`
+                    : `text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-700`
                 }
                 `}
             >
@@ -118,21 +118,21 @@ const BlogTitles = () => {
       </form>
 
       {/* Right col */}
-      <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96">
+      <div className="w-full max-w-lg p-4 bg-white dark:bg-[#111111] rounded-lg flex flex-col border border-gray-200 dark:border-gray-800 min-h-96">
         <div className="flex items-center gap-3">
           <Hash className="w-5 h-5 text-[#8E37EB]" />
-          <h2 className="text-xl font-semibold">Generated Titles</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Generated Titles</h2>
         </div>
 
         {!content ? (
           <div className="flex flex-1 justify-center items-center">
-            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400 dark:text-gray-500">
               <Hash className="w-9 h-9" />
               <p>Enter a topic and click "Generate Title" to get started</p>
             </div>
           </div>
         ) : (
-          <div className="mt-3 h-full overflow-y-scroll text-sm text-slate-600">
+          <div className="mt-3 h-full overflow-y-scroll text-sm text-slate-600 dark:text-gray-300">
             <div className="reset-tw">
               <Markdown>{content}</Markdown>
             </div>

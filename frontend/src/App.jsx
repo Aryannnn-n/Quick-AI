@@ -13,7 +13,7 @@ import WriteArticle from './pages/WriteArticle';
 
 const App = () => {
   return (
-    <div>
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
       <Toaster />
       <Routes>
         <Route path="/" element={<Home />} />
