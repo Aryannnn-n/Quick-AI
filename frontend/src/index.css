@@ -11,6 +11,9 @@
   --color-primary: #7c3aed;
 }
 
+@variant dark (&:where(.dark, .dark *));
+
+
 /* Dark mode configuration */
 :root {
   color-scheme: light;
@@ -45,4 +48,14 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none; /* IE/Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+/* Global Scrollbar hide */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }

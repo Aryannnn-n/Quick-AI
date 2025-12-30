@@ -6,31 +6,57 @@ import { useTheme } from '../contexts/ThemeContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
-
   const { user } = useUser();
   const { openSignIn } = useClerk();
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="fixed z-50 w-full backdrop-blur-xl bg-white/70 dark:bg-black/20 backdrop-saturate-150 flex justify-between items-center py-3 px-4 sm:px-20 xl:px-32 border-b border-white/20 dark:border-white/10 shadow-lg shadow-black/5">
+    <div
+      className="
+        fixed z-50 w-full
+        flex justify-between items-center
+        py-3 px-4 sm:px-20 xl:px-32
+
+        backdrop-blur-xl backdrop-saturate-150
+
+        bg-white/40
+        dark:bg-black/25
+        supports-[backdrop-filter]:bg-white/40
+        supports-[backdrop-filter]:dark:bg-black/25
+
+        border-b
+        border-white/40
+        dark:border-white/10
+
+        shadow-lg
+        shadow-black/5
+        dark:shadow-black/30
+      "
+    >
+      {/* Logo */}
       <img
         src={assets.logo}
         alt="logo"
         className="w-32 sm:w-44 cursor-pointer"
-        onClick={() => {
-          navigate('/');
-        }}
+        onClick={() => navigate('/')}
       />
 
-      {/* Theme toggle and User login button */}
+      {/* Right side actions */}
       <div className="flex items-center gap-4">
+        {/* Theme Toggle */}
         <button
           type="button"
           onClick={(e) => {
             e.preventDefault();
             toggleTheme();
           }}
-          className="p-2 rounded-full hover:bg-white/20 dark:hover:bg-white/10 transition-colors backdrop-blur-sm"
+          className="
+            p-2 rounded-full
+            backdrop-blur-sm
+            hover:bg-white/30
+            dark:hover:bg-white/15
+            transition-colors
+          "
           aria-label="Toggle theme"
         >
           {theme === 'dark' ? (
@@ -40,14 +66,20 @@ const Navbar = () => {
           )}
         </button>
 
+        {/* Auth Button */}
         {user ? (
           <UserButton />
         ) : (
           <button
-            onClick={() => {
-              openSignIn();
-            }}
-            className="bg-primary text-white text-sm flex gap-1 items-center rounded-full px-10 py-2.5 cursor-pointer transition hover:scale-102 active:scale-95 shadow-lg shadow-primary/30"
+            onClick={() => openSignIn()}
+            className="
+              bg-primary text-white text-sm
+              flex items-center gap-1
+              rounded-full px-10 py-2.5
+              transition
+              hover:scale-105 active:scale-95
+              shadow-lg shadow-primary/30
+            "
           >
             Get Started <ArrowRight className="h-4 w-4" />
           </button>

@@ -14,6 +14,7 @@
 * ❤️ Publish creations & like community posts
 * 🔐 Secure authentication with plan-based access control
 * 📊 Track user activity, usage limits, and publishing state
+* 🌓 Light & Dark Mode (Persisted)
 
 ----
 
@@ -23,7 +24,8 @@
 
 * **React 19** + **Vite**
 * **Tailwind CSS**
-* **Clerk Authentication**
+* **Clerk Authentication** (with `@clerk/themes`)
+* **Context API** (Theme Management)
 * Axios
 * React Router
 * Markdown rendering
