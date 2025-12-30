@@ -9,7 +9,6 @@ dotenv.config();
 import axios from 'axios';
 import { v2 as cloudinary } from 'cloudinary';
 
-import { PDFParse } from 'pdf-parse';
 
 import { clerkClient } from '@clerk/express';
 import OpenAI from 'openai';
@@ -347,88 +346,7 @@ const removeImageObject = async (req, res) => {
 };
 
 // Resume Review
-// const resumeReview = async (req, res) => {
-//   try {
-//     const { userId } = req.auth();
-//     const resume = req.file;
-//     const plan = req.plan;
-
-//     // Enforce premium only -> Only premium members can genearate images
-//     if (plan !== 'premium') {
-//       return res.json({
-//         success: false,
-//         message: 'This feature is only available for premium subscriptions.',
-//       });
-//     }
-
-//     // Check the resume file size
-//     if (resume.size > 5 * 1024 * 1024) {
-//       return res.json({
-//         success: false,
-//         message: 'Resume file size exceeds allowed file size (5MB).',
-//       });
-//     }
-
-//     // Load uploaded PDF into a buffer (non-blocking)
-//     const dataBuffer = await fs.promises.readFile(resume.path);
-
-//     // Create a parser instance with the Buffer
-//     const parser = new PDFParse({ data: dataBuffer });
-
-//     // Extract text from PDF
-//     const pdfResult = await parser.getText();
-//     await parser.destroy(); // recommended to free resources
-
-//     // Build AI prompt with extracted resume text
-//     const prompt = `Review the following resume and provide constructive feedback on its strengths, weaknesses, and areas for improvement. Resume Content:\n\n ${pdfResult.text}`;
-
-//     // Generate resume review using Gemini
-//     const response = await openai.chat.completions.create({
-//       model: 'gemini-2.5-flash',
-//       messages: [{ role: 'user', content: prompt }],
-//       temperature: 0.7,
-//     });
-
-//     const content = response?.choices?.[0]?.message?.content;
-
-//     // Handle missing AI output
-//     if (!content) {
-//       return res.json({
-//         success: false,
-//         message:
-//           'The generative AI server is not working properly , kindly try again later !',
-//       });
-//     }
-
-//     // Save generated review
-//     await sql`
-//       INSERT INTO creations (user_id, prompt, content, type )
-//       VALUES (${userId}, 'Review the uploaded resume', ${content}, 'resume-review')
-//     `;
-
-//     res.json({ success: true, content: content });
-//   } catch (error) {
-//     console.log(error.message);
-
-//     // Handle rate limit / Quota / API migration errors
-//     if (error.status === 429 || error.code === 429) {
-//       return res.status(503).json({
-//         success: false,
-//         message:
-//           'Resume review system is temporarily unavailable as we are migrating our services to a new AI provider. Please try again after some time.',
-//       });
-//     }
-
-//     res.json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
-
 const resumeReview = async (req, res) => {
-  let parser;
-
   try {
     const { userId } = req.auth();
     const resume = req.file;
@@ -458,11 +376,8 @@ const resumeReview = async (req, res) => {
       });
     }
 
-    // ✅ Initialize parser with BUFFER (Vercel-safe)
-    parser = new PDFParse({ data: resume.buffer });
-
-    // Extract text from PDF
-    const pdfResult = await parser.getText();
+    // Extract text from PDF using pdf-parse (Vercel-safe)
+    const pdfResult = await pdf(resume.buffer);
 
     // Build AI prompt with extracted resume text
     const prompt = `Review the following resume and provide constructive feedback on its strengths, weaknesses, and areas for improvement.
@@ -509,11 +424,6 @@ ${pdfResult.text}`;
       success: false,
       message: error.message,
     });
-  } finally {
-    // ✅ IMPORTANT: free memory in serverless
-    if (parser) {
-      await parser.destroy();
-    }
   }
 };
 
@@ -523,5 +433,6 @@ export {
   generateImage,
   removeImageBackground,
   removeImageObject,
-  resumeReview,
+  resumeReview
 };
+
